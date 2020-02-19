@@ -1,0 +1,30 @@
+import unittest
+import portfolio
+
+class PortfolioTest(unittest.TestCase):
+
+    def test_Cash(self):
+        testPortfolio = portfolio.Portfolio()
+        testPortfolio.addCash(200)
+        testPortfolio.withdrawCash(50)
+        self.assertEqual(150, testPortfolio.cash)
+
+    def test_Stock(self):
+        testPortfolio = portfolio.Portfolio()
+        google = portfolio.Stock(5, "GOOGL")
+        testPortfolio.buyStock(10, google)
+        testPortfolio.sellStock("GOOGL", 5)
+        amount = testPortfolio.Stocks["GOOGL"]
+        self.assertEqual(amount, 10)
+
+    def test_MutualFund(self):
+        testPortfolio = portfolio.Portfolio()
+        vanguard = portfolio.MutualFund("VGD")
+        testPortfolio.buyMutualFund(75, vanguard)
+        testPortfolio.sellMutualFund("VGD", 70)
+        amount = testPortfolio.MutualFunds["VGD"]
+        self.assertEqual(amount, 5)
+
+
+if __name__ == "__main__":
+    unittest.main()
