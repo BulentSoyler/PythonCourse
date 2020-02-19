@@ -1,0 +1,109 @@
+import random
+
+class Stock():
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+        self.amount = 0
+        self.price_sold = int()
+
+class MutualFund():
+    def __init__(self, name):
+        self.name = name
+        self.price = 1
+        self.amount = 0
+        self.price_sold = int()
+
+class Transaction():
+    def __init__(self, price, ticker, amount):
+        self.price = price
+        self.ticker = ticker
+        self.amount = amount
+
+class Portfolio():
+    def __init__(self):
+        self.cash = 1000 # There is $1000 in the wallet at the beginning
+        self.Transactions= []
+        self.Stock= {}
+        self.MutualFund= {} 
+
+    def addCash(self, n):
+        self.cash += n
+
+        transaction = Transaction("Cash", "Add", n)
+        self.Transactions.append(transaction)
+
+    def withdrawCash(self, n):
+        self.cash -= n
+
+        transaction = Transaction("Cash", "Withdraw", n)
+        self.Transactions.append(transaction)
+
+    def buyStock(self, price, stock):
+       price = stock.price
+       amount = stock.amount
+       self.cash -= amount * int(price)
+
+       transaction = Transactions("StockBuy", amount, price)
+       self.Transactions.append(transaction)
+
+    def buyMutualFund(self, price, MutualFund):
+       price = MutualFund.price
+       amount = MutualFund.amount
+       self.cash -= amount * 1
+
+       transaction = Transactions("MutualFundBuy", amount, 1)
+       self.Transactions.append(transaction)
+
+    def sellStock(self, price_sold, amount):
+       price_sold = Stock.price_sold
+       amount = Stock.s_amount
+       Stock.s_amount -= amount
+       self.Cash += amount * int(price_sold)
+
+       transaction = Transactions("StockSell", amount, price)
+       self.Transactions.append(transaction)
+
+    def sellMutualFund(self, price_sold, Mutualfund):
+       price_sold = MutualFund.price_sold
+       amount = MutualFund.MF_amount
+       MutualFund.MF_amount -= amount
+       self.Cash += amount * int(price_sold)
+
+       transaction = Transactions("MutualFundSell", amount, price)
+       self.Transactions.append(transaction)
+
+    def current(self):
+       print("Current Account:")
+
+       print("Current cash is: $ str(self.Cash)")
+
+       print("Current stocks are: str(self.Stock)")
+
+       print("Current mutual funds are: str(self.MutualFund)")
+
+    def history(self):
+       print("Transaction History as follows:")
+
+       print("Stocks bought: str(Stock.name) bought for str(Stock.price)/ per share")
+
+       print("Mutual Funds bought: str(MutualFund.name) bought for str(MutualFund.price)/ per share")
+
+       print("Stocks sold: str(Stock.name) sold for str(Stock.price_sold)/ per share")
+       
+       print("Mutual Funds sold: str(MutualFund.name) sold for str(MutualFund.price_sold)/ per share")
+
+portfolio = Portfolio()
+portfolio.addCash(300.50)
+s = Stock(20, "HFH")
+portfolio.buyStock(5, s)
+mf1 = MutualFund("BRT")
+mf2 = MutualFund("GHT")
+portfolio.buyMutualFund(10.3, mf1)
+portfolio.buyMutualFund(2, mf2)
+portfolio.sellMutualFund("BRT", 3)
+portfolio.sellStock("HFH", 1)
+portfolio.withdrawCash(50)
+portfolio.current()
+portfolio.history()
+StockMarket = {} 
