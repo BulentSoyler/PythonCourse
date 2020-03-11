@@ -30,7 +30,7 @@ np.where(np.isnan(b))
 np.nan_to_num(b)
 y = np.nan_to_num(b)
 
-# Solution 1
+# Solution 1 via writing the formulas by hand
 
 x1 = np.matrix(x) # matrix of Variable 1
 x1.I # Inverse of Variable 1
