@@ -52,7 +52,7 @@ pyplot.ylabel('GDP Per Capita (Current US$)')
 pyplot.xlabel('Unemployment (% of total)')
 pyplot.show()
 
-# Solution 2 via Linear Regression
+# Solution 2 via Linear Regression function
 
 model = LinearRegression()
 model.fit(x,y)
