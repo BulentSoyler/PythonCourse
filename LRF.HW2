@@ -1,0 +1,26 @@
+a = np.array(Variable_1).reshape(-1,1)
+np.isnan(a)
+np.where(np.isnan(a))
+np.nan_to_num(a)
+x = np.nan_to_num(a)
+
+b = np.array(Variable_2)
+np.isnan(b)
+np.where(np.isnan(b))
+np.nan_to_num(b)
+y = np.nan_to_num(b)
+
+# Solution 1
+
+x1 = np.matrix(x) # matrix of Variable 1
+x1.I # Inverse of Variable 1
+beta = x1.I @ x.T @ y
+k = 1
+n = np.size(x)
+y_estimate = x @ beta
+e = y.T - y_estimate
+sigma_square = (e.T @ e) / (n - k - 1)
+beta_Variance = sigma_square @ x1.I
+std = math.sqrt(beta_Variance) # standard deviation
+lower_bound = beta - 1.96 * std
+upper_bound = beta + 1.96 * std
