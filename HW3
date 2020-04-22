@@ -69,7 +69,7 @@ varying_intercept_fit
 # change 2: b1 ~ normal (0, 1000);
 # change 3: b1 ~ normal (0, 100);
 # change 4: b1 ~ uniform (0, 1);
-# change 5: b1 ~ uniform (0, 0.5);
+# change 5: b1 ~ normal (0, 0.5);
 
 # with the changes, mean of b1 became:
 # b1_initial model = 0.29
