@@ -1,0 +1,85 @@
+# We need to create our model first. For that, I took the hierarcial and varying intercept models in the exampleStanSolutions.py as basis 
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import pystan
+
+#For reading trend2.csv file:
+trend2 = pd.read_csv (r'https://raw.githubusercontent.com/carlson9/KocPython2020/master/homework/trend2.csv')
+trend2= trend2.dropna() # to get rid of NaN values
+
+#For the lookup table (dict) for each unique county, for indexing:
+trend2.country = trend2.country.str.strip()
+countries = trend2.country.unique()
+country_len = len(countries)
+
+#For the local variables
+country_lookup = dict(zip(countries, range(country_len)))
+country = trend2['country_code'] = trend2.country.replace(country_lookup).values
+religiosity = trend2.church2.values
+inequality = trend2.gini_net.values
+rgdpl = trend2.rgdpl.values
+
+
+#For random intercepts for country and year, we need to use varying intercept model:
+varying_intercept = """
+data {
+  int<lower=0> J; 
+  int<lower=0> N; 
+  int<lower=1,upper=J> country[N];
+  vector[N] x1;
+  vector[N] x2;
+  vector[N] y;
+}
+parameters {
+  vector[J] a;
+  real b1;
+  real b2;
+  real mu_a;
+  real<lower=0,upper=100> sigma_a;
+  real<lower=0,upper=100> sigma_y;
+}
+transformed parameters {
+  vector[N] y_hat;
+  for (i in 1:N)
+    y_hat[i] = a[country[i]] + x1[i] * b1 + x2[i] * b2;
+}
+model {
+  sigma_a ~ uniform(0, 100);
+  a ~ normal (mu_a, sigma_a);
+  b1 ~ normal (0, 1);
+  b2 ~ normal (0, 1);
+  sigma_y ~ uniform(0, 100);
+  y ~ normal(y_hat, sigma_y);
+}
+"""
+
+varying_intercept_data = {'N': len(religiosity),
+                          'J': len(countries),
+                          'country': country+1, # Stan counts starting at 1
+                          'x1': inequality,
+                          'x2': rgdpl,
+                          'y': religiosity}
+varying_intercept_fit = pystan.stan(model_code=varying_intercept, data=varying_intercept_data, iter=1000, chains=2)
+varying_intercept_fit
+
+# When I ran this model, I found the mean of b1 as 0.29. Then, I made some changes in the line 50:
+# Line 50 in the initial model: b1 ~ normal (0, 1);
+# change 1: b1 ~ normal (0, 10000);
+# change 2: b1 ~ normal (0, 1000);
+# change 3: b1 ~ normal (0, 100);
+# change 4: b1 ~ uniform (0, 1);
+# change 5: b1 ~ uniform (0, 0.5);
+
+# with the changes, mean of b1 became:
+# b1_initial model = 0.29
+# b1_change_1 = 0.32
+# b1_change_2 = 0.30
+# b1_change_3 = 0.30
+# b1_change_4 = 0.30
+# b1_change_5 = 0.25
+
+# Results: In the first three changes, I increased the variance of b1 and its mean value increased, especially in the change 1.
+# In the change 4, I changed the distribution of b1 and its mean value increased.
+# In the change 5, I decreased the variance of b1 and its mean value decreased.
+# Conclusion: When the prior is noninformative (high variance), mean of b1 is higher; when the prior is more informative (low variance), mean of b1 is lower.
