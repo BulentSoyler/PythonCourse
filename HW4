@@ -1,0 +1,69 @@
+import numpy as np
+import pandas as pd
+
+file='C:/Users/user/Documents/immSurvey.xlsx'
+x = pd.ExcelFile(file)
+print(x.sheet_names)
+tt = x.parse('immSurvey')
+
+# Look at the data
+tt.head(339)
+
+alphas = tt.stanMeansNewSysPooled
+sample = tt.textToSend
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+# Word Frequency as Extracted Feature (Same as in-class)
+vec = CountVectorizer()
+X1 = vec.fit_transform(sample)
+
+pd.DataFrame(X1.toarray(), columns=vec.get_feature_names())
+
+#down-weighting frequent words; term frequency–inverse document frequency (TF–IDF), which weights the word counts by a measure of how often they appear in the documents
+from sklearn.feature_extraction.text import TfidfVectorizer
+vec = TfidfVectorizer()
+X1 = vec.fit_transform(sample)
+pd.DataFrame(X1.toarray(), columns=vec.get_feature_names())
+
+from sklearn.model_selection import train_test_split
+X1train, X1test, y1train, y1test = train_test_split(X1, alphas,
+random_state=1)
+
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import ConstantKernel, RBF
+
+rbf1 = ConstantKernel(1.0) * RBF(length_scale=1.0)
+gpr1 = GaussianProcessRegressor(kernel=rbf1, alpha=1e-8)
+
+gpr1.fit(X1train.toarray(), y1train)
+
+# Compute posterior predictive mean and covariance
+mu_s1, cov_s1 = gpr1.predict(X1test.toarray(), return_cov=True)
+
+#test correlation between test and mus
+Model_1 = np.corrcoef(y1test, mu_s1)
+print(Model_1)
+
+#how might we improve this? By using bigrams...
+
+bigram_vectorizer = CountVectorizer(ngram_range=(1, 2), token_pattern=r'\b\w+\b', min_df=1)
+
+X2 = bigram_vectorizer.fit_transform(sample)
+
+X2train, X2test, y2train, y2test = train_test_split(X2, alphas, random_state=1)
+
+rbf2 = ConstantKernel(1.0) * RBF(length_scale=1.0)
+gpr2 = GaussianProcessRegressor(kernel=rbf2, alpha=1e-8)
+
+gpr2.fit(X2train.toarray(), y2train)
+
+mu_s2, cov_s2 = gpr2.predict(X2test.toarray(), return_cov=True)
+
+Model_2 = np.corrcoef(y2test, mu_s2)
+print(Model_2)
+
+The_Ratio = str(round((Model_2 / Model_1)[0,1]-1,4))
+print(The_Ratio)
+
+# For "ngram_range", I tried multiple combinations including (1,1), (2,2), (3,3), (2,3), (2,4), and so forth to increase "The_Ratio" value. The best combination was (1,2) which makes "The_Ratio" 0.6498. The closest combination to this value was (2,2), which makes "The_Ratio" 0.5458 and shows us that (1,2) is the best combination. For that, the model is improved by 0.6498.
